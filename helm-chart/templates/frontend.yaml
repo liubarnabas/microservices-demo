@@ -49,7 +49,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop:
-                - all
+                - ALL
             privileged: false
             readOnlyRootFilesystem: true
           image: {{ .Values.images.repository }}/{{ .Values.frontend.name }}:{{ .Values.images.tag | default .Chart.AppVersion }}
@@ -88,7 +88,7 @@ spec:
             value: "{{ .Values.checkoutService.name }}:5050"
           - name: AD_SERVICE_ADDR
             value: "{{ .Values.adService.name }}:9555"
-          - name: ENV_PLATFORM 
+          - name: ENV_PLATFORM
             value: {{ .Values.frontend.platform | quote }}
           {{- if .Values.opentelemetryCollector.create }}
           - name: COLLECTOR_SERVICE_ADDR
@@ -107,12 +107,7 @@ spec:
           - name: ENABLE_SINGLE_SHARED_SESSION
             value: {{ .Values.frontend.singleSharedSession | quote }}
           resources:
-            requests:
-              cpu: 100m
-              memory: 64Mi
-            limits:
-              cpu: 200m
-              memory: 128Mi
+            {{- toYaml .Values.frontend.resources | nindent 12 }}
 ---
 apiVersion: v1
 kind: Service
@@ -168,7 +163,7 @@ spec:
     {{- if .Values.frontend.virtualService.create }}
     - namespaceSelector:
         matchLabels:
-          name: {{ .Values.frontend.virtualService.gateway.namespace }}
+          kubernetes.io/metadata.name: {{ .Values.frontend.virtualService.gateway.namespace }}
       podSelector:
         matchLabels:
           {{ .Values.frontend.virtualService.gateway.labelKey }}: {{ .Values.frontend.virtualService.gateway.labelValue }}
@@ -232,7 +227,7 @@ spec:
         - cluster.local/ns/{{ .Values.frontend.virtualService.gateway.namespace }}/sa/{{ .Values.frontend.virtualService.gateway.name }}
         {{- end }}
     to:
-  {{- end }}  
+  {{- end }}
     - operation:
         methods:
         - GET

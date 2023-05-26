@@ -47,7 +47,7 @@ spec:
           allowPrivilegeEscalation: false
           capabilities:
             drop:
-              - all
+              - ALL
           privileged: false
           readOnlyRootFilesystem: true
         {{- if .Values.nativeGrpcHealthCheck }}
@@ -82,12 +82,7 @@ spec:
             command: ["/bin/grpc_health_probe", "-addr=:50051"]
           {{- end }}
         resources:
-          requests:
-            cpu: 100m
-            memory: 64Mi
-          limits:
-            cpu: 200m
-            memory: 128Mi
+          {{- toYaml .Values.shippingService.resources | nindent 10 }}
 ---
 apiVersion: v1
 kind: Service
